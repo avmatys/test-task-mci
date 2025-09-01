@@ -13,9 +13,12 @@ import com.task.mci.model.Package;
 
 public class PackageDao implements CrudDao<Package, Integer> {
 
-    private static final String SELECT_ALL_SQL = "SELECT id, name, sequence FROM packages";
-    private static final String SELECT_BY_ID_SQL = "SELECT id, name, sequence FROM packages WHERE id = ?";
-    private static final String INSERT_SQL = "INSERT INTO packages(name, sequence) VALUES(?, ?)";
+    public PackageDao() {
+    }
+
+    private static final String SELECT_ALL_SQL = "SELECT id, name FROM packages";
+    private static final String SELECT_BY_ID_SQL = "SELECT id, name FROM packages WHERE id = ?";
+    private static final String INSERT_SQL = "INSERT INTO packages(name) VALUES(?)";
 
     @Override
     public List<Package> findAll() throws SQLException {

@@ -71,8 +71,7 @@ public class CommandFactory {
 
     public static Command addPackageCommand(CrudDao<Package, Integer> dao) {
         ParamSpec[] specs = new ParamSpec[] {
-            new ParamSpec("-name", "Enter name", true),
-            new ParamSpec("-seq",  "Enter sequence", true)
+            new ParamSpec("-name", "Enter name", true)
         };
         return new GenericAddCommand<>(dao, specs,
             params -> new Package(0, params.get("-name")),
