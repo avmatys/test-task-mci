@@ -26,6 +26,11 @@ import com.task.mci.model.Location;
 import com.task.mci.model.Package;
 import com.task.mci.model.Product;
 import com.task.mci.model.Truck;
+import com.task.mci.service.GenericService;
+import com.task.mci.service.impl.LocationService;
+import com.task.mci.service.impl.PackageService;
+import com.task.mci.service.impl.ProductService;
+import com.task.mci.service.impl.TruckService;
 
 public class Main {
     public static void main(String[] args) {
@@ -35,8 +40,8 @@ public class Main {
         InputSource in = null;
         OutputTarget out = null;
         try {
-            if (args.length >= 4 && args[0].equalsIgnoreCase("-fin") 
-                && args[2].equalsIgnoreCase("-fout")) {
+
+            if (args.length >= 4 && args[0].equalsIgnoreCase("-fin") && args[2].equalsIgnoreCase("-fout")) {
                 in = new FileInputSource(args[1]);
                 out = new FileOutputTarget(args[3]);
             } else {
@@ -50,15 +55,21 @@ public class Main {
             CrudDao<Product, Integer> productDao = new ProductDao();
             CrudDao<Package, Integer> packageDao = new CachingDao<>(new PackageDao(), Package::id);
 
+            // Initialize Services
+            GenericService<Location, Integer> locationService = new LocationService(locationDao);
+            GenericService<Truck, Integer> truckService = new TruckService(truckDao);
+            GenericService<Product, Integer> productService = new ProductService(productDao);
+            GenericService<Package, Integer> packageService = new PackageService(packageDao);
+            
             // Register commands
             CommandRegistry registry = new CommandRegistry();
             registry.register("help", CommandFactory.helpCommand(registry));
             registry.register("exit", CommandFactory.exitCommand());
             
-            registry.register("lst-loc", CommandFactory.listLocationCommand(locationDao));
-            registry.register("lst-trk", CommandFactory.listTruckCommand(truckDao));
-            registry.register("lst-pkg", CommandFactory.listPackageCommand(packageDao));
-            registry.register("lst-prd", CommandFactory.listProductCommand(productDao));
+            registry.register("lst-loc", CommandFactory.listLocationCommand(locationService));
+            registry.register("lst-trk", CommandFactory.listTruckCommand(truckService));
+            registry.register("lst-pkg", CommandFactory.listPackageCommand(packageService));
+            registry.register("lst-prd", CommandFactory.listProductCommand(productService));
 
             registry.register("add-loc", CommandFactory.addLocationCommand(locationDao));
             registry.register("add-trk", CommandFactory.addTruckCommand(truckDao));

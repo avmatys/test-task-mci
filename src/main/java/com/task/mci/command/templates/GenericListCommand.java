@@ -5,20 +5,20 @@ import java.sql.SQLException;
 import java.util.function.Function;
 
 import com.task.mci.command.Command;
-import com.task.mci.dao.CrudDao;
 import com.task.mci.io.InputSource;
 import com.task.mci.io.OutputTarget;
+import com.task.mci.service.GenericService;
 
 public class GenericListCommand<T> implements Command {
 
-    private final CrudDao<T, Integer> dao;
+    private final GenericService<T, Integer> service;
     private final Function<T, String> formatter;
     private final String description;
 
-    public GenericListCommand(CrudDao<T, Integer> dao,
+    public GenericListCommand(GenericService<T, Integer> service,
                               Function<T, String> formatter,
                               String description) {
-        this.dao = dao;
+        this.service = service;
         this.formatter = formatter;
         this.description = description;
     }
@@ -26,12 +26,12 @@ public class GenericListCommand<T> implements Command {
     @Override
     public boolean execute(String[] args, InputSource in, OutputTarget out) throws IOException {
         try {
-            for (T item : dao.findAll()) {
+            for (T item : service.findAll()) {
                 out.write(formatter.apply(item) + "\n");
             }
             out.write("\n");
         } catch (SQLException e) {
-            out.write("Database error: " + e.getMessage() + "\n");
+            out.write("Service error: " + e.getMessage() + "\n");
         }
         return true;
     }
@@ -40,5 +40,4 @@ public class GenericListCommand<T> implements Command {
     public String description() {
         return description;
     }
-
 }

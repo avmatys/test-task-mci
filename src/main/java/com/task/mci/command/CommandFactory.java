@@ -9,23 +9,24 @@ import com.task.mci.model.Location;
 import com.task.mci.model.Package;
 import com.task.mci.model.Product;
 import com.task.mci.model.Truck;
+import com.task.mci.service.GenericService;
 
-public class CommandFactory {
+public class CommandFactory { 
 
-    public static Command listLocationCommand(CrudDao<Location, Integer> dao) {
-        return new GenericListCommand<>(dao, loc -> loc.id() + "\t" + loc.name(), "list all locations");
+    public static Command listLocationCommand(GenericService<Location, Integer> service) {
+        return new GenericListCommand<>(service, x -> x.id() + "\t" + x.name(), "list all locations");
     }
 
-    public static Command listTruckCommand(CrudDao<Truck, Integer> dao) {
-        return new GenericListCommand<>(dao, trk -> trk.id() + "\t" + trk.plate(), "list all trucks");
+    public static Command listTruckCommand(GenericService<Truck, Integer> service) {
+        return new GenericListCommand<>(service, x -> x.id() + "\t" + x.plate(), "list all trucks");
     }
 
-    public static Command listProductCommand(CrudDao<Product, Integer> dao) {
-        return new GenericListCommand<>(dao, x -> x.id() + "\t" + x.name(), "list all products");
+    public static Command listProductCommand(GenericService<Product, Integer> service) {
+        return new GenericListCommand<>(service, x -> x.id() + "\t" + x.name(), "list all products");
     }
 
-    public static Command listPackageCommand(CrudDao<Package, Integer> dao) {
-        return new GenericListCommand<>(dao, x -> x.id() + "\t" + x.name(), "list all package types");
+    public static Command listPackageCommand(GenericService<Package, Integer> service) {
+        return new GenericListCommand<>(service, x -> x.id() + "\t" + x.name(), "list all package types");
     }
 
     public static Command helpCommand(CommandRegistry registry) {
