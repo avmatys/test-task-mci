@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.task.mci.model.Location;
-import com.task.mci.service.exception.ValidationException;
 
 public class LocationValidator implements Validator<Location> {
     @Override

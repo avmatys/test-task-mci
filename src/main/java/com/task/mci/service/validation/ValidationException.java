@@ -1,4 +1,4 @@
-package com.task.mci.service.exception;
+package com.task.mci.service.validation;
 
 import java.util.List;
 

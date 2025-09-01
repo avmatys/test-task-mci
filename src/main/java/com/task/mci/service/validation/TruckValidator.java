@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.task.mci.model.Truck;
-import com.task.mci.service.exception.ValidationException;
 
 public class TruckValidator implements Validator<Truck> {
     @Override

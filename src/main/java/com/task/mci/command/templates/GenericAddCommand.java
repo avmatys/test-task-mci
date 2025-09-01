@@ -8,24 +8,25 @@ import java.util.function.Function;
 
 import com.task.mci.command.Command;
 import com.task.mci.command.util.CommandArgumentParser;
-import com.task.mci.dao.CrudDao;
 import com.task.mci.io.InputSource;
 import com.task.mci.io.OutputTarget;
+import com.task.mci.service.GenericService;
+import com.task.mci.service.validation.ValidationException;
 
 public class GenericAddCommand<T> implements Command {
 
-    private final CrudDao<T, Integer> dao;
+    private final GenericService<T, Integer> service;
     private final ParamSpec[] specs;
-    private final Function<Map<String,String>,T> builder;
+    private final Function<Map<String,String>, T> builder;
     private final Function<T,String> formatter;
     private final String description;
 
-    public GenericAddCommand(CrudDao<T, Integer> dao,
+    public GenericAddCommand(GenericService<T, Integer> service,
                              ParamSpec[] specs,
                              Function<Map<String,String>,T> builder,
                              Function<T,String> formatter,
                              String description) {
-        this.dao = dao;
+        this.service = service;
         this.specs = specs;
         this.builder = builder;
         this.formatter = formatter;
@@ -33,7 +34,9 @@ public class GenericAddCommand<T> implements Command {
     }
 
     @Override
-    public boolean execute(String[] args, InputSource in, OutputTarget out) throws IOException {
+    public boolean execute(String[] args,
+                           InputSource in,
+                           OutputTarget out) throws IOException {
         Map<String, String> params;
         try {
             params = CommandArgumentParser.parse(args);
@@ -41,6 +44,7 @@ public class GenericAddCommand<T> implements Command {
             out.write("Error parsing arguments: " + e.getMessage() + "\n");
             return true;
         }
+        // Check if interactive mode is needed
         boolean interactive = params.containsKey("-i");
         for (ParamSpec spec : specs) {
             if (interactive && !params.containsKey(spec.key())) {
@@ -48,20 +52,32 @@ public class GenericAddCommand<T> implements Command {
                 params.put(spec.key(), in.readLine());
             }
         }
+        // Validate required parameters
         for (ParamSpec spec : specs) {
-            if (spec.required() && (params.get(spec.key()) == null || params.get(spec.key()).isBlank())) {
+            String value = params.get(spec.key());
+            if (spec.required() && (value == null || value.isBlank())) {
                 out.write("Parameter " + spec.key() + " is required\n");
                 return true;
             }
         }
+        // Build entity and handle possible exceptions
         try {
-            T entity = builder.apply(params);
-            T created = dao.insert(entity);
+            T entity  = builder.apply(params);
+            T created = service.create(entity);
             out.write(formatter.apply(created) + "\n");
         } catch (NumberFormatException e) {
             out.write("Invalid numeric value: " + e.getMessage() + "\n");
-        } catch (SQLException ex) {
-            out.write("Database error: " + ex.getMessage() + "\n");
+        } catch (ValidationException ve) {
+            for (String err : ve.getErrors()) {
+                out.write("Validation error: " + err + "\n");
+            }
+        } catch (SQLException e) {
+            out.write("Database error: " + e.getMessage() + "\n");
+        }
+        catch (IOException e) {
+            out.write("I/O error: " + e.getMessage() + "\n");
+        } catch (Exception ex) {
+            out.write("Unexpected error: " + ex.getClass().getSimpleName()+ " – " + ex.getMessage() + "\n");
         }
         return true;
     }
@@ -70,5 +86,4 @@ public class GenericAddCommand<T> implements Command {
     public String description() {
         return description;
     }
-
 }

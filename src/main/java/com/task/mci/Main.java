@@ -71,10 +71,10 @@ public class Main {
             registry.register("lst-pkg", CommandFactory.listPackageCommand(packageService));
             registry.register("lst-prd", CommandFactory.listProductCommand(productService));
 
-            registry.register("add-loc", CommandFactory.addLocationCommand(locationDao));
-            registry.register("add-trk", CommandFactory.addTruckCommand(truckDao));
-            registry.register("add-pkg", CommandFactory.addPackageCommand(packageDao));
-            registry.register("add-prd", CommandFactory.addProductCommand(productDao));
+            registry.register("add-loc", CommandFactory.addLocationCommand(locationService));
+            registry.register("add-trk", CommandFactory.addTruckCommand(truckService));
+            registry.register("add-pkg", CommandFactory.addPackageCommand(packageService));
+            registry.register("add-prd", CommandFactory.addProductCommand(productService));
 
             Pattern pattern = Pattern.compile("[^\\s\"']+|\"([^\"]*)\"|'([^']*)'");
             
