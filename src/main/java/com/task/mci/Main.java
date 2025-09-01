@@ -10,9 +10,10 @@ import com.task.mci.command.Command;
 import com.task.mci.command.CommandFactory;
 import com.task.mci.command.CommandRegistry;
 import com.task.mci.dao.CachingDao;
-import com.task.mci.dao.CapacityUnitDao;
 import com.task.mci.dao.CrudDao;
 import com.task.mci.dao.LocationDao;
+import com.task.mci.dao.PackageDao;
+import com.task.mci.dao.ProductDao;
 import com.task.mci.dao.TruckDao;
 import com.task.mci.dao.util.DB;
 import com.task.mci.io.ConsoleInputSource;
@@ -21,8 +22,9 @@ import com.task.mci.io.FileInputSource;
 import com.task.mci.io.FileOutputTarget;
 import com.task.mci.io.InputSource;
 import com.task.mci.io.OutputTarget;
-import com.task.mci.model.CapacityUnit;
 import com.task.mci.model.Location;
+import com.task.mci.model.Package;
+import com.task.mci.model.Product;
 import com.task.mci.model.Truck;
 
 public class Main {
@@ -45,25 +47,29 @@ public class Main {
             // Initialize DAOs
             CrudDao<Location,Integer> locationDao = new LocationDao();
             CrudDao<Truck, Integer> truckDao = new TruckDao();
-            CrudDao<CapacityUnit, Integer> rawCapacityUnitDao = new CapacityUnitDao();
-            CrudDao<CapacityUnit, Integer> cachedCapacityUnitDao = new CachingDao<>(rawCapacityUnitDao, CapacityUnit::id);
+            CrudDao<Product, Integer> productDao = new ProductDao();
+            CrudDao<Package, Integer> packageDao = new CachingDao<>(new PackageDao(), Package::id);
 
             // Register commands
             CommandRegistry registry = new CommandRegistry();
             registry.register("help", CommandFactory.helpCommand(registry));
             registry.register("exit", CommandFactory.exitCommand());
+            
             registry.register("lst-loc", CommandFactory.listLocationCommand(locationDao));
             registry.register("lst-trk", CommandFactory.listTruckCommand(truckDao));
-            registry.register("lst-cap", CommandFactory.listCapacityUnitCommand(cachedCapacityUnitDao));
+            registry.register("lst-pkg", CommandFactory.listPackageCommand(packageDao));
+            registry.register("lst-prd", CommandFactory.listProductCommand(productDao));
+
             registry.register("add-loc", CommandFactory.addLocationCommand(locationDao));
             registry.register("add-trk", CommandFactory.addTruckCommand(truckDao));
-            registry.register("add-cap", CommandFactory.addCapacityUnitCommand(cachedCapacityUnitDao));
+            registry.register("add-pkg", CommandFactory.addPackageCommand(packageDao));
+            registry.register("add-prd", CommandFactory.addProductCommand(productDao));
 
             Pattern pattern = Pattern.compile("[^\\s\"']+|\"([^\"]*)\"|'([^']*)'");
             
             boolean running = true;
             while (running) {
-                out.write("\n>");
+                out.write("\n> ");
                 String line = in.readLine();
                 if (line == null) break;
                 line = line.trim();

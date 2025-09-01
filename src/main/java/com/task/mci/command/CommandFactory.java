@@ -5,22 +5,27 @@ import com.task.mci.command.templates.GenericCommand;
 import com.task.mci.command.templates.GenericListCommand;
 import com.task.mci.command.templates.ParamSpec;
 import com.task.mci.dao.CrudDao;
-import com.task.mci.model.CapacityUnit;
 import com.task.mci.model.Location;
+import com.task.mci.model.Package;
+import com.task.mci.model.Product;
 import com.task.mci.model.Truck;
 
 public class CommandFactory {
 
-    public static Command listLocationCommand(CrudDao<Location, Integer> locationDao) {
-        return new GenericListCommand<>(locationDao, loc -> loc.id() + "\t" + loc.name(), "list all locations");
+    public static Command listLocationCommand(CrudDao<Location, Integer> dao) {
+        return new GenericListCommand<>(dao, loc -> loc.id() + "\t" + loc.name(), "list all locations");
     }
 
-    public static Command listTruckCommand(CrudDao<Truck, Integer> truckDao) {
-        return new GenericListCommand<>(truckDao, trk -> trk.id() + "\t" + trk.plate(), "list all trucks");
+    public static Command listTruckCommand(CrudDao<Truck, Integer> dao) {
+        return new GenericListCommand<>(dao, trk -> trk.id() + "\t" + trk.plate(), "list all trucks");
     }
 
-    public static Command listCapacityUnitCommand(CrudDao<CapacityUnit, Integer> capacityUnitDao) {
-        return new GenericListCommand<>(capacityUnitDao, cu -> cu.id() + "\t" + cu.name() + "\t" + cu.sequence(), "list all capacity units");
+    public static Command listProductCommand(CrudDao<Product, Integer> dao) {
+        return new GenericListCommand<>(dao, x -> x.id() + "\t" + x.name(), "list all products");
+    }
+
+    public static Command listPackageCommand(CrudDao<Package, Integer> dao) {
+        return new GenericListCommand<>(dao, x -> x.id() + "\t" + x.name(), "list all package types");
     }
 
     public static Command helpCommand(CommandRegistry registry) {
@@ -41,45 +46,47 @@ public class CommandFactory {
             (args, in, out) -> false);
     }
 
-    public static Command addLocationCommand(CrudDao<Location, Integer> locationDao) {
+    public static Command addLocationCommand(CrudDao<Location, Integer> dao) {
         ParamSpec[] specs = new ParamSpec[] {
             new ParamSpec("-name", "Enter location name", true)
         };
         return new GenericAddCommand<>(
-            locationDao,
+            dao,
             specs,
             params -> new Location(0, params.get("-name")),
-            created -> "Location added: ID=" + created.id() +
-                    ", name=" + created.name(),
+            created -> "Location added: ID=" + created.id() + ", name=" + created.name(),
             "add a new location. Usage: add-location [-i] -name <name>");
     }
 
-    public static Command addTruckCommand(CrudDao<Truck, Integer> truckDao) {
+    public static Command addTruckCommand(CrudDao<Truck, Integer> dao) {
         ParamSpec[] specs = new ParamSpec[] {
             new ParamSpec("-plate", "Enter truck plate", true)
         };
-        return new GenericAddCommand<>(
-            truckDao,
-            specs,
+        return new GenericAddCommand<>(dao, specs,
             params -> new Truck(0, params.get("-plate")),
-            created -> "Truck added: ID=" + created.id() +
-                    ", plate=" + created.plate(),
-            "add a new truck. Usage: add-truck [-i] -plate <plate>");
+            created -> "Truck added: ID=" + created.id() + ", plate=" + created.plate(),
+            "add a new truck. Usage: add-trk [-i] -plate <plate>");
     }
 
-    public static Command addCapacityUnitCommand(CrudDao<CapacityUnit, Integer> capacityUnitDao) {
+    public static Command addPackageCommand(CrudDao<Package, Integer> dao) {
         ParamSpec[] specs = new ParamSpec[] {
             new ParamSpec("-name", "Enter name", true),
             new ParamSpec("-seq",  "Enter sequence", true)
         };
-        return new GenericAddCommand<>(
-            capacityUnitDao,
-            specs,
-            params -> new CapacityUnit(0,
-                params.get("-name"), Integer.parseInt(params.get("-seq"))),
-            created -> "Added: ID=" + created.id()
-                + ", name=" + created.name() + ", seq=" + created.sequence(),
-            "add-capacity-unit [-i] -name <name> -seq <sequence>");
+        return new GenericAddCommand<>(dao, specs,
+            params -> new Package(0, params.get("-name")),
+            created -> "Added: ID=" + created.id() + ", name=" + created.name(), 
+            "add a new package type. Usage: add-pkg [-i] -name <name>");
+    }   
+
+    public static Command addProductCommand(CrudDao<Product, Integer> dao) {
+        ParamSpec[] specs = new ParamSpec[] { 
+            new ParamSpec("-name", "Enter name", true) 
+        };
+        return new GenericAddCommand<>(dao, specs,
+            params -> new Product(0, params.get("-name")),
+            created -> "Added: ID=" + created.id() + ", name=" + created.name(),
+            "add a new product. Usage: add-prd [-i] -name <name>");
     }   
    
 }
