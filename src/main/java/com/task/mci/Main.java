@@ -15,6 +15,7 @@ import com.task.mci.dao.CargoItemDao;
 import com.task.mci.dao.CrudDao;
 import com.task.mci.dao.LocationDao;
 import com.task.mci.dao.ProductDao;
+import com.task.mci.dao.ShipmentStageDao;
 import com.task.mci.dao.TruckDao;
 import com.task.mci.dao.util.DB;
 import com.task.mci.io.ConsoleInputSource;
@@ -27,10 +28,12 @@ import com.task.mci.model.Capacity;
 import com.task.mci.model.CargoItem;
 import com.task.mci.model.Location;
 import com.task.mci.model.Product;
+import com.task.mci.model.ShipmentStage;
 import com.task.mci.model.Truck;
 import com.task.mci.service.GenericService;
 import com.task.mci.service.impl.CargoItemService;
 import com.task.mci.service.impl.GenericServiceImpl;
+import com.task.mci.service.impl.ShipmentStageService;
 
 public class Main {
     public static void main(String[] args) {
@@ -52,14 +55,16 @@ public class Main {
             CrudDao<Product, Integer> productDao = new ProductDao();
             CrudDao<Capacity, Integer> packageDao = new CachingDao<>(new CapacityDao(), Capacity::id);
             CrudDao<CargoItem, Integer> cargoItemDao = new CargoItemDao();
+            CrudDao<ShipmentStage, Integer> shipmentStageDao = new ShipmentStageDao();
             
             // Initialize Services
             GenericService<Location, Integer> locationService = new GenericServiceImpl<>(locationDao);
             GenericService<Truck, Integer> truckService = new GenericServiceImpl<>(truckDao);
             GenericService<Product, Integer> productService = new GenericServiceImpl<>(productDao);
-            GenericService<Capacity, Integer> packageService = new GenericServiceImpl<>(packageDao);
-            GenericService<CargoItem, Integer> cargoItemService = new CargoItemService(cargoItemDao, packageService, productService, locationService);
-            
+            GenericService<Capacity, Integer> capacityService = new GenericServiceImpl<>(packageDao);
+            GenericService<CargoItem, Integer> cargoItemService = new CargoItemService(cargoItemDao, capacityService, productService, locationService);
+            GenericService<ShipmentStage, Integer> shipmentStageService = new ShipmentStageService(shipmentStageDao, truckService, locationService);
+
             // Register commands
             CommandRegistry registry = new CommandRegistry();
             registry.register("help", CommandFactory.helpCommand(registry));
@@ -67,15 +72,17 @@ public class Main {
             
             registry.register("lst-loc", CommandFactory.listLocationCommand(locationService));
             registry.register("lst-trk", CommandFactory.listTruckCommand(truckService));
-            registry.register("lst-pkg", CommandFactory.listCapacityCommand(packageService));
+            registry.register("lst-pkg", CommandFactory.listCapacityCommand(capacityService));
             registry.register("lst-prd", CommandFactory.listProductCommand(productService));
             registry.register("lst-itm", CommandFactory.listCargoItemCommand(cargoItemService));
+            registry.register("lst-stg", CommandFactory.listShipmentStageCommand(shipmentStageService));
 
             registry.register("add-loc", CommandFactory.addLocationCommand(locationService));
             registry.register("add-trk", CommandFactory.addTruckCommand(truckService));
-            registry.register("add-pkg", CommandFactory.addCapacityCommand(packageService));
+            registry.register("add-pkg", CommandFactory.addCapacityCommand(capacityService));
             registry.register("add-prd", CommandFactory.addProductCommand(productService));
             registry.register("add-itm", CommandFactory.addCargoItemCommand(cargoItemService));
+            registry.register("add-stg", CommandFactory.addShipmentStageCommand(shipmentStageService));
 
             // Command loop
             Pattern pattern = Pattern.compile("[^\\s\"']+|\"([^\"]*)\"|'([^']*)'");

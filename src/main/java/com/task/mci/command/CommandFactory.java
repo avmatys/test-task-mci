@@ -9,6 +9,7 @@ import com.task.mci.model.CargoItem;
 import com.task.mci.model.CargoType;
 import com.task.mci.model.Location;
 import com.task.mci.model.Product;
+import com.task.mci.model.ShipmentStage;
 import com.task.mci.model.Truck;
 import com.task.mci.service.GenericService;
 
@@ -32,6 +33,10 @@ public class CommandFactory {
 
     public static Command listCargoItemCommand(GenericService<CargoItem, Integer> service) {
         return new GenericListCommand<>(service, x -> x.id() + "\t" + x.type(), "list all cargo items");
+    }
+
+    public static Command listShipmentStageCommand(GenericService<ShipmentStage, Integer> service) {
+        return new GenericListCommand<>(service, x -> x.id() + "\t" + x.truck(), "list all shipment stages");
     }
 
     public static Command helpCommand(CommandRegistry registry) {
@@ -206,6 +211,74 @@ public class CommandFactory {
             },
             created -> "Added: ID=" + created.id() + ", parent=" + (created.parent() != null ? created.parent().id() : "null"),
             "add a new cargo item. Usage: add-itm [-i] -type <CAPACITY|PRODUCT> [-capId <id>] [-prdId <id>] -fromId <id> -toId <id> [-parentId <id>]"
+        );
+    }
+
+    public static Command addShipmentStageCommand(GenericService<ShipmentStage, Integer> srv) {
+        ParamSpec[] specs = new ParamSpec[] {
+            new ParamSpec(
+                "-truckId",
+                "Enter truck ID",
+                map -> true,
+                val -> {
+                    try {
+                        Integer.valueOf(val);
+                        return true;
+                    } catch (NumberFormatException e) {
+                        return false;
+                    }
+                },
+                "truck ID must be a valid integer"
+            ),
+            new ParamSpec(
+                "-fromId",
+                "Enter source location ID",
+                map -> true,
+                val -> {
+                    try {
+                        Integer.valueOf(val);
+                        return true;
+                    } catch (NumberFormatException e) {
+                        return false;
+                    }
+                },
+                "fromId must be a valid integer"
+            ),
+            new ParamSpec(
+                "-toId",
+                "Enter target location ID",
+                map -> true,
+                val -> {
+                    try {
+                        Integer.valueOf(val);
+                        return true;
+                    } catch (NumberFormatException e) {
+                        return false;
+                    }
+                },
+                "toId must be a valid integer"
+            )
+        };
+
+        return new GenericAddCommand<>(
+            srv,
+            specs,
+            params -> {
+                return new ShipmentStage(
+                    0,
+                    new Truck(Integer.parseInt(params.get("-truckId")), ""),
+                    new Location(Integer.parseInt(params.get("-fromId")),  ""),
+                    new Location(Integer.parseInt(params.get("-toId")),    "")
+                );
+            },
+            created -> String.format(
+                "ShipmentStage added: ID=%d, truck=%d, from=%d, to=%d",
+                created.id(),
+                created.truck().id(),
+                created.from().id(),
+                created.to().id()
+            ),
+            "add-shipment-stage [-i] -truckId <id> -fromId <id> -toId <id>"
         );
     }
 
