@@ -1,6 +1,6 @@
 package com.task.mci.model;
 
-public record Package(
+public record Capacity(
     int id, 
     String name
 ) {}

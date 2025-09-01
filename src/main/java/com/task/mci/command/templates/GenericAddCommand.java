@@ -34,9 +34,7 @@ public class GenericAddCommand<T> implements Command {
     }
 
     @Override
-    public boolean execute(String[] args,
-                           InputSource in,
-                           OutputTarget out) throws IOException {
+    public boolean execute(String[] args, InputSource in, OutputTarget out) throws IOException {
         Map<String, String> params;
         try {
             params = CommandArgumentParser.parse(args);
@@ -55,8 +53,12 @@ public class GenericAddCommand<T> implements Command {
         // Validate required parameters
         for (ParamSpec spec : specs) {
             String value = params.get(spec.key());
-            if (spec.required() && (value == null || value.isBlank())) {
+            if (spec.requiredIf().test(params) && (value == null || value.isBlank())) {
                 out.write("Parameter " + spec.key() + " is required\n");
+                return true;
+            }
+            if (value != null && !value.isBlank() && !spec.validator().test(value)) {
+                out.write("Parameter " + spec.key() + " is invalid: " + spec.errorMessage() + "\n");
                 return true;
             }
         }

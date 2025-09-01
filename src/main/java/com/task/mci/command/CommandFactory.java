@@ -4,8 +4,10 @@ import com.task.mci.command.templates.GenericAddCommand;
 import com.task.mci.command.templates.GenericCommand;
 import com.task.mci.command.templates.GenericListCommand;
 import com.task.mci.command.templates.ParamSpec;
+import com.task.mci.model.Capacity;
+import com.task.mci.model.CargoItem;
+import com.task.mci.model.CargoType;
 import com.task.mci.model.Location;
-import com.task.mci.model.Package;
 import com.task.mci.model.Product;
 import com.task.mci.model.Truck;
 import com.task.mci.service.GenericService;
@@ -24,8 +26,12 @@ public class CommandFactory {
         return new GenericListCommand<>(service, x -> x.id() + "\t" + x.name(), "list all products");
     }
 
-    public static Command listPackageCommand(GenericService<Package, Integer> service) {
-        return new GenericListCommand<>(service, x -> x.id() + "\t" + x.name(), "list all package types");
+    public static Command listCapacityCommand(GenericService<Capacity, Integer> service) {
+        return new GenericListCommand<>(service, x -> x.id() + "\t" + x.name(), "list all capacity types");
+    }
+
+    public static Command listCargoItemCommand(GenericService<CargoItem, Integer> service) {
+        return new GenericListCommand<>(service, x -> x.id() + "\t" + x.type(), "list all cargo items");
     }
 
     public static Command helpCommand(CommandRegistry registry) {
@@ -37,13 +43,12 @@ public class CommandFactory {
                     out.write("  " + e.getKey() + " – " + e.getValue().description() + "\n");
                 }
                 return true; 
-            });
+            }
+        );
     }   
 
     public static Command exitCommand() {
-        return new GenericCommand(
-            "exit the application",
-            (args, in, out) -> false);
+        return new GenericCommand("exit the application", (args, in, out) -> false);
     }
 
     public static Command addLocationCommand(GenericService<Location, Integer> srv) {
@@ -55,37 +60,153 @@ public class CommandFactory {
             specs,
             params -> new Location(0, params.get("-name")),
             created -> "Location added: ID=" + created.id() + ", name=" + created.name(),
-            "add a new location. Usage: add-location [-i] -name <name>");
+            "add a new location. Usage: add-location [-i] -name <name>"
+        );
     }
 
     public static Command addTruckCommand(GenericService<Truck, Integer> srv) {
         ParamSpec[] specs = new ParamSpec[] {
             new ParamSpec("-plate", "Enter truck plate", true)
         };
-        return new GenericAddCommand<>(srv, specs,
+        return new GenericAddCommand<>(
+            srv, 
+            specs,
             params -> new Truck(0, params.get("-plate")),
             created -> "Truck added: ID=" + created.id() + ", plate=" + created.plate(),
-            "add a new truck. Usage: add-trk [-i] -plate <plate>");
+            "add a new truck. Usage: add-trk [-i] -plate <plate>"
+        );
     }
 
-    public static Command addPackageCommand(GenericService<Package, Integer> srv) {
+    public static Command addCapacityCommand(GenericService<Capacity, Integer> srv) {
         ParamSpec[] specs = new ParamSpec[] {
             new ParamSpec("-name", "Enter name", true)
         };
-        return new GenericAddCommand<>(srv, specs,
-            params -> new Package(0, params.get("-name")),
+        return new GenericAddCommand<>(
+            srv, 
+            specs,
+            params -> new Capacity(0, params.get("-name")),
             created -> "Added: ID=" + created.id() + ", name=" + created.name(), 
-            "add a new package type. Usage: add-pkg [-i] -name <name>");
+            "add a new capacity type. Usage: add-cpt [-i] -name <name>"
+        );
     }   
 
     public static Command addProductCommand(GenericService<Product, Integer> srv) {
         ParamSpec[] specs = new ParamSpec[] { 
             new ParamSpec("-name", "Enter name", true) 
         };
-        return new GenericAddCommand<>(srv, specs,
+        return new GenericAddCommand<>(
+            srv, 
+            specs,
             params -> new Product(0, params.get("-name")),
             created -> "Added: ID=" + created.id() + ", name=" + created.name(),
-            "add a new product. Usage: add-prd [-i] -name <name>");
-    }   
-   
+            "add a new product. Usage: add-prd [-i] -name <name>"
+        );
+    }  
+
+    public static Command addCargoItemCommand(GenericService<CargoItem, Integer> srv) {
+        ParamSpec[] specs = new ParamSpec[] {
+            new ParamSpec(
+                "-type", 
+                "Enter cargo type (PRODUCT, CAPACITY)", 
+                map -> true,
+                val -> val.equals("PRODUCT") || val.equals("CAPACITY"),
+                "type must be PRODUCT or CAPACITY"
+            ),
+            new ParamSpec(
+                "-capId", 
+                "Enter capacity ID for type CAPACITY", 
+                map -> "CAPACITY".equalsIgnoreCase(map.get("-type")),
+                val -> {
+                    try {
+                        Integer.valueOf(val);
+                        return true;
+                    } catch (NumberFormatException e) {
+                        return false;
+                    }
+                },
+                "capacity ID is required for type CAPACITY"
+            ),
+            new ParamSpec(
+                "-prdId",
+                "Enter product ID for type PRODUCT", 
+                map -> "PRODUCT".equalsIgnoreCase(map.get("-type")),
+                val -> {
+                    try {
+                        Integer.valueOf(val);
+                        return true;
+                    } catch (NumberFormatException e) {
+                        return false;
+                    }
+                },
+                "product ID is required for type PRODUCT"
+            ),
+            new ParamSpec(
+                "-fromId",
+                "Enter source location ID",
+                map -> true,
+                val -> {
+                    try {
+                        Integer.valueOf(val);
+                        return true;
+                    } catch (NumberFormatException e) {
+                        return false;
+                    }
+                },
+                "source location ID must be a valid integer"
+            ),
+            new ParamSpec(
+                "-toId",
+                "Enter target location ID",
+                map -> true,
+                val -> {
+                    try {
+                        Integer.valueOf(val);
+                        return true;
+                    } catch (NumberFormatException e) {
+                        return false;
+                    }
+                },
+                "target location ID must be a valid integer"
+            ),
+            new ParamSpec(
+                "-parentId",
+                "Enter parent cargo item ID (optional)",
+                map -> false,
+                val -> {
+                    if (val == null || val.isBlank()) return true;
+                    try {
+                        Integer.valueOf(val);
+                        return true;
+                    } catch (NumberFormatException e) {
+                        return false;
+                    }
+                },
+                "parent cargo item ID must be a valid integer"
+            )
+        };
+        return new GenericAddCommand<>(
+            srv, 
+            specs,
+            params -> {
+                CargoType type = CargoType.valueOf(params.get("-type"));
+                CargoItem parent = null;
+                if (params.containsKey("-parentId") && !params.get("-parentId").isBlank()) {
+                    parent = new CargoItem(Integer.parseInt(params.get("-parentId")), null, null, null, null, null, null, false);
+                }
+                return new CargoItem(
+                    0,
+                    type,
+                    type == CargoType.CAPACITY ? new Capacity(Integer.parseInt(params.get("-capId")), "") : null,
+                    type == CargoType.PRODUCT ? new Product(Integer.parseInt(params.get("-prdId")), "") : null,
+                    new Location(Integer.parseInt(params.get("-fromId")), ""),
+                    new Location(Integer.parseInt(params.get("-toId")), ""),
+                    parent, 
+                    false
+                );
+            },
+            created -> "Added: ID=" + created.id() + ", parent=" + (created.parent() != null ? created.parent().id() : "null"),
+            "add a new cargo item. Usage: add-itm [-i] -type <CAPACITY|PRODUCT> [-capId <id>] [-prdId <id>] -fromId <id> -toId <id> [-parentId <id>]"
+        );
+    }
+
 }

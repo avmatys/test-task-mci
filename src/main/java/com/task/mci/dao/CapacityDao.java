@@ -9,25 +9,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.task.mci.dao.util.DB;
-import com.task.mci.model.Package;
+import com.task.mci.model.Capacity;
 
-public class PackageDao implements CrudDao<Package, Integer> {
+public class CapacityDao implements CrudDao<Capacity, Integer> {
 
-    public PackageDao() {
-    }
+    public CapacityDao() {}
 
-    private static final String SELECT_ALL_SQL = "SELECT id, name FROM packages";
-    private static final String SELECT_BY_ID_SQL = "SELECT id, name FROM packages WHERE id = ?";
-    private static final String INSERT_SQL = "INSERT INTO packages(name) VALUES(?)";
+    private static final String SELECT_ALL_SQL = "SELECT id, name FROM capacities";
+    private static final String SELECT_BY_ID_SQL = "SELECT id, name FROM capacities WHERE id = ?";
+    private static final String INSERT_SQL = "INSERT INTO capacities(name) VALUES(?)";
 
     @Override
-    public List<Package> findAll() throws SQLException {
+    public List<Capacity> findAll() throws SQLException {
         try (Connection c = DB.getConnection();
              Statement st = c.createStatement();
              ResultSet rs = st.executeQuery(SELECT_ALL_SQL)) {
-            List<Package> list = new ArrayList<>();
+            List<Capacity> list = new ArrayList<>();
             while (rs.next()) {
-                list.add(new Package(
+                list.add(new Capacity(
                         rs.getInt("id"),
                         rs.getString("name")
                 ));
@@ -37,13 +36,13 @@ public class PackageDao implements CrudDao<Package, Integer> {
     }
 
     @Override
-    public Package findById(Integer id) throws SQLException {
+    public Capacity findById(Integer id) throws SQLException {
         try (Connection c = DB.getConnection();
              PreparedStatement ps = c.prepareStatement(SELECT_BY_ID_SQL)) {
             ps.setInt(1, id);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    return new Package(
+                    return new Capacity(
                         rs.getInt("id"),
                         rs.getString("name")
                     );
@@ -54,14 +53,14 @@ public class PackageDao implements CrudDao<Package, Integer> {
     }
 
     @Override
-    public Package insert(Package entity) throws SQLException {
+    public Capacity insert(Capacity entity) throws SQLException {
         try (Connection c = DB.getConnection();
              PreparedStatement ps = c.prepareStatement(INSERT_SQL, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, entity.name());
             ps.executeUpdate();
             try (ResultSet rs = ps.getGeneratedKeys()) {
                 if (rs.next()) {
-                    return new Package(
+                    return new Capacity(
                         rs.getInt(1),
                         entity.name()
                     );

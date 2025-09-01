@@ -10,9 +10,10 @@ import com.task.mci.command.Command;
 import com.task.mci.command.CommandFactory;
 import com.task.mci.command.CommandRegistry;
 import com.task.mci.dao.CachingDao;
+import com.task.mci.dao.CapacityDao;
+import com.task.mci.dao.CargoItemDao;
 import com.task.mci.dao.CrudDao;
 import com.task.mci.dao.LocationDao;
-import com.task.mci.dao.PackageDao;
 import com.task.mci.dao.ProductDao;
 import com.task.mci.dao.TruckDao;
 import com.task.mci.dao.util.DB;
@@ -22,25 +23,21 @@ import com.task.mci.io.FileInputSource;
 import com.task.mci.io.FileOutputTarget;
 import com.task.mci.io.InputSource;
 import com.task.mci.io.OutputTarget;
+import com.task.mci.model.Capacity;
+import com.task.mci.model.CargoItem;
 import com.task.mci.model.Location;
-import com.task.mci.model.Package;
 import com.task.mci.model.Product;
 import com.task.mci.model.Truck;
 import com.task.mci.service.GenericService;
-import com.task.mci.service.impl.LocationService;
-import com.task.mci.service.impl.PackageService;
-import com.task.mci.service.impl.ProductService;
-import com.task.mci.service.impl.TruckService;
+import com.task.mci.service.impl.CargoItemService;
+import com.task.mci.service.impl.GenericServiceImpl;
 
 public class Main {
     public static void main(String[] args) {
-
         DB.init();
-
         InputSource in = null;
         OutputTarget out = null;
         try {
-
             if (args.length >= 4 && args[0].equalsIgnoreCase("-fin") && args[2].equalsIgnoreCase("-fout")) {
                 in = new FileInputSource(args[1]);
                 out = new FileOutputTarget(args[3]);
@@ -48,18 +45,20 @@ public class Main {
                 in = new ConsoleInputSource();
                 out = new ConsoleOutputTarget();
             }
-
+            
             // Initialize DAOs
             CrudDao<Location,Integer> locationDao = new LocationDao();
             CrudDao<Truck, Integer> truckDao = new TruckDao();
             CrudDao<Product, Integer> productDao = new ProductDao();
-            CrudDao<Package, Integer> packageDao = new CachingDao<>(new PackageDao(), Package::id);
-
+            CrudDao<Capacity, Integer> packageDao = new CachingDao<>(new CapacityDao(), Capacity::id);
+            CrudDao<CargoItem, Integer> cargoItemDao = new CargoItemDao();
+            
             // Initialize Services
-            GenericService<Location, Integer> locationService = new LocationService(locationDao);
-            GenericService<Truck, Integer> truckService = new TruckService(truckDao);
-            GenericService<Product, Integer> productService = new ProductService(productDao);
-            GenericService<Package, Integer> packageService = new PackageService(packageDao);
+            GenericService<Location, Integer> locationService = new GenericServiceImpl<>(locationDao);
+            GenericService<Truck, Integer> truckService = new GenericServiceImpl<>(truckDao);
+            GenericService<Product, Integer> productService = new GenericServiceImpl<>(productDao);
+            GenericService<Capacity, Integer> packageService = new GenericServiceImpl<>(packageDao);
+            GenericService<CargoItem, Integer> cargoItemService = new CargoItemService(cargoItemDao, packageService, productService, locationService);
             
             // Register commands
             CommandRegistry registry = new CommandRegistry();
@@ -68,16 +67,18 @@ public class Main {
             
             registry.register("lst-loc", CommandFactory.listLocationCommand(locationService));
             registry.register("lst-trk", CommandFactory.listTruckCommand(truckService));
-            registry.register("lst-pkg", CommandFactory.listPackageCommand(packageService));
+            registry.register("lst-pkg", CommandFactory.listCapacityCommand(packageService));
             registry.register("lst-prd", CommandFactory.listProductCommand(productService));
+            registry.register("lst-itm", CommandFactory.listCargoItemCommand(cargoItemService));
 
             registry.register("add-loc", CommandFactory.addLocationCommand(locationService));
             registry.register("add-trk", CommandFactory.addTruckCommand(truckService));
-            registry.register("add-pkg", CommandFactory.addPackageCommand(packageService));
+            registry.register("add-pkg", CommandFactory.addCapacityCommand(packageService));
             registry.register("add-prd", CommandFactory.addProductCommand(productService));
+            registry.register("add-itm", CommandFactory.addCargoItemCommand(cargoItemService));
 
+            // Command loop
             Pattern pattern = Pattern.compile("[^\\s\"']+|\"([^\"]*)\"|'([^']*)'");
-            
             boolean running = true;
             while (running) {
                 out.write("\n> ");

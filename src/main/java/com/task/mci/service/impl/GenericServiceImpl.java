@@ -5,21 +5,17 @@ import java.util.List;
 
 import com.task.mci.dao.CrudDao;
 import com.task.mci.service.GenericService;
-import com.task.mci.service.validation.Validator;
 
 public class GenericServiceImpl<T, ID> implements GenericService<T, ID> {
 
     private final CrudDao<T, ID> dao;
-    private final Validator<T> validator;
 
-    public GenericServiceImpl(CrudDao<T, ID> dao, Validator<T> validator) {
+    public GenericServiceImpl(CrudDao<T, ID> dao) {
         this.dao = dao;
-        this.validator = validator;
     }
 
     @Override
     public T create(T entity) throws SQLException {
-        validator.validate(entity);
         return dao.insert(entity);
     }
 

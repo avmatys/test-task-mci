@@ -10,20 +10,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.task.mci.dao.util.DB;
+import com.task.mci.model.Capacity;
 import com.task.mci.model.CargoItem;
 import com.task.mci.model.CargoType;
 import com.task.mci.model.Location;
-import com.task.mci.model.Package;
 import com.task.mci.model.Product;
 
 public class CargoItemDao implements CrudDao<CargoItem, Integer> {
 
     private static final String SELECT_ALL_SQL = "SELECT "
             + " ci.id                 AS ci_id,"
-            + " ci.cargo_type         AS ci_type,"
+            + " ci.type               AS ci_type,"
             + " ci.main_flag          AS ci_main,"
-            + " ci.package_id         AS pkg_id,"
-            + " p.name                AS pkg_name,"
+            + " ci.capacity_id        AS cap_id,"
+            + " c.name                AS cap_name,"
             + " ci.product_id         AS prod_id,"
             + " pr.name               AS prod_name,"
             + " ci.from_id            AS from_id,"
@@ -32,15 +32,15 @@ public class CargoItemDao implements CrudDao<CargoItem, Integer> {
             + " tl.name               AS to_name,"
             + " ci.parent_id          AS parent_id"
             + " FROM cargo_items ci"
-            + " LEFT JOIN packages p  ON p.id  = ci.package_id"
-            + " LEFT JOIN products pr ON pr.id = ci.product_id"
+            + " LEFT JOIN capacities c ON c.id  = ci.capacity_id"
+            + " LEFT JOIN products  pr ON pr.id = ci.product_id"
             + " LEFT JOIN locations fl ON fl.id = ci.from_id"
             + " LEFT JOIN locations tl ON tl.id = ci.to_id";
 
     private static final String SELECT_BY_ID_SQL = SELECT_ALL_SQL + " WHERE ci.id = ?";
 
     private static final String INSERT_SQL = "INSERT INTO cargo_items("
-            + "  cargo_type, package_id, product_id,"
+            + "  type, capacity_id, product_id,"
             + "  main_flag, from_id, to_id, parent_id"
             + ") VALUES (?, ?, ?, ?, ?, ?, ?)";
 
@@ -73,10 +73,10 @@ public class CargoItemDao implements CrudDao<CargoItem, Integer> {
         try (Connection c = DB.getConnection();
             PreparedStatement ps = c.prepareStatement(INSERT_SQL, Statement.RETURN_GENERATED_KEYS)) {
             // 1) cargo_type
-            ps.setString(1, entity.type().name());
+            ps.setObject(1, entity.type(), Types.OTHER);
             // 2) package_id
-            if (entity.pkg() != null) {
-                ps.setInt(2, entity.pkg().id());
+            if (entity.capacity() != null) {
+                ps.setInt(2, entity.capacity().id());
             } else {
                 ps.setNull(2, Types.INTEGER);
             }
@@ -111,7 +111,7 @@ public class CargoItemDao implements CrudDao<CargoItem, Integer> {
                 if (keys.next()) {
                     int newId = keys.getInt(1);
                     return new CargoItem(
-                        newId, entity.type(), entity.pkg(), entity.product(),
+                        newId, entity.type(), entity.capacity(), entity.product(),
                         entity.from(), entity.to(), entity.parent(), entity.main()
                     );
                 } else {
@@ -127,10 +127,10 @@ public class CargoItemDao implements CrudDao<CargoItem, Integer> {
         CargoType type = CargoType.valueOf(rs.getString("ci_type"));
         boolean main  = rs.getBoolean("ci_main");
         // package
-        Package pkg = null;
-        int pkgId = rs.getInt("pkg_id");
+        Capacity pkg = null;
+        int pkgId = rs.getInt("cap_id");
         if (!rs.wasNull()) {
-            pkg = new Package(pkgId, rs.getString("pkg_name"));
+            pkg = new Capacity(pkgId, rs.getString("cap_name"));
         }
         // product
         Product prod = null;

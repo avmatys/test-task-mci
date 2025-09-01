@@ -3,7 +3,7 @@ package com.task.mci.model;
 public record CargoItem(
     int id,
     CargoType type,
-    Package pkg,
+    Capacity capacity,
     Product product,
     Location from,
     Location to,
