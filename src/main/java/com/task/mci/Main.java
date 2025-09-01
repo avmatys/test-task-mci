@@ -12,6 +12,7 @@ import com.task.mci.command.CommandRegistry;
 import com.task.mci.dao.CachingDao;
 import com.task.mci.dao.CapacityDao;
 import com.task.mci.dao.CargoItemDao;
+import com.task.mci.dao.CargoItemShipmentDao;
 import com.task.mci.dao.CrudDao;
 import com.task.mci.dao.LocationDao;
 import com.task.mci.dao.ProductDao;
@@ -26,12 +27,15 @@ import com.task.mci.io.InputSource;
 import com.task.mci.io.OutputTarget;
 import com.task.mci.model.Capacity;
 import com.task.mci.model.CargoItem;
+import com.task.mci.model.CargoItemShipment;
+import com.task.mci.model.CargoItemShipmentKey;
 import com.task.mci.model.Location;
 import com.task.mci.model.Product;
 import com.task.mci.model.ShipmentStage;
 import com.task.mci.model.Truck;
 import com.task.mci.service.GenericService;
 import com.task.mci.service.impl.CargoItemService;
+import com.task.mci.service.impl.CargoItemShipmentService;
 import com.task.mci.service.impl.GenericServiceImpl;
 import com.task.mci.service.impl.ShipmentStageService;
 
@@ -56,15 +60,20 @@ public class Main {
             CrudDao<Capacity, Integer> packageDao = new CachingDao<>(new CapacityDao(), Capacity::id);
             CrudDao<CargoItem, Integer> cargoItemDao = new CargoItemDao();
             CrudDao<ShipmentStage, Integer> shipmentStageDao = new ShipmentStageDao();
+            CrudDao<CargoItemShipment, CargoItemShipmentKey> cargoItemShipmentDao = new CargoItemShipmentDao();
             
             // Initialize Services
             GenericService<Location, Integer> locationService = new GenericServiceImpl<>(locationDao);
             GenericService<Truck, Integer> truckService = new GenericServiceImpl<>(truckDao);
             GenericService<Product, Integer> productService = new GenericServiceImpl<>(productDao);
             GenericService<Capacity, Integer> capacityService = new GenericServiceImpl<>(packageDao);
-            GenericService<CargoItem, Integer> cargoItemService = new CargoItemService(cargoItemDao, capacityService, productService, locationService);
-            GenericService<ShipmentStage, Integer> shipmentStageService = new ShipmentStageService(shipmentStageDao, truckService, locationService);
-
+            GenericService<CargoItem, Integer> cargoItemService = 
+                new CargoItemService(cargoItemDao, capacityService, productService, locationService);
+            GenericService<ShipmentStage, Integer> shipmentStageService = 
+                new ShipmentStageService(shipmentStageDao, truckService, locationService);
+            GenericService<CargoItemShipment, CargoItemShipmentKey> cargoItemShipmentService = 
+                new CargoItemShipmentService(cargoItemShipmentDao, cargoItemService, shipmentStageService);
+            
             // Register commands
             CommandRegistry registry = new CommandRegistry();
             registry.register("help", CommandFactory.helpCommand(registry));
@@ -76,6 +85,7 @@ public class Main {
             registry.register("lst-prd", CommandFactory.listProductCommand(productService));
             registry.register("lst-itm", CommandFactory.listCargoItemCommand(cargoItemService));
             registry.register("lst-stg", CommandFactory.listShipmentStageCommand(shipmentStageService));
+            registry.register("lst-map", CommandFactory.listCargoItemShipmentCommand(cargoItemShipmentService));
 
             registry.register("add-loc", CommandFactory.addLocationCommand(locationService));
             registry.register("add-trk", CommandFactory.addTruckCommand(truckService));
@@ -83,6 +93,7 @@ public class Main {
             registry.register("add-prd", CommandFactory.addProductCommand(productService));
             registry.register("add-itm", CommandFactory.addCargoItemCommand(cargoItemService));
             registry.register("add-stg", CommandFactory.addShipmentStageCommand(shipmentStageService));
+            registry.register("add-map", CommandFactory.addCargoItemShipmentCommand(cargoItemShipmentService));
 
             // Command loop
             Pattern pattern = Pattern.compile("[^\\s\"']+|\"([^\"]*)\"|'([^']*)'");

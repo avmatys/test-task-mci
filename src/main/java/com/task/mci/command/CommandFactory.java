@@ -6,6 +6,8 @@ import com.task.mci.command.templates.GenericListCommand;
 import com.task.mci.command.templates.ParamSpec;
 import com.task.mci.model.Capacity;
 import com.task.mci.model.CargoItem;
+import com.task.mci.model.CargoItemShipment;
+import com.task.mci.model.CargoItemShipmentKey;
 import com.task.mci.model.CargoType;
 import com.task.mci.model.Location;
 import com.task.mci.model.Product;
@@ -37,6 +39,10 @@ public class CommandFactory {
 
     public static Command listShipmentStageCommand(GenericService<ShipmentStage, Integer> service) {
         return new GenericListCommand<>(service, x -> x.id() + "\t" + x.truck(), "list all shipment stages");
+    }
+
+    public static Command listCargoItemShipmentCommand(GenericService<CargoItemShipment, CargoItemShipmentKey> service) {
+        return new GenericListCommand<>(service, x -> x.cargoItem().id() + "\t" + x.shipmentStage().id(), "list all item shipments");
     }
 
     public static Command helpCommand(CommandRegistry registry) {
@@ -279,6 +285,52 @@ public class CommandFactory {
                 created.to().id()
             ),
             "add-shipment-stage [-i] -truckId <id> -fromId <id> -toId <id>"
+        );
+    }
+
+    public static Command addCargoItemShipmentCommand(GenericService<CargoItemShipment, CargoItemShipmentKey> srv) {
+        ParamSpec[] specs = new ParamSpec[] {
+            new ParamSpec(
+                "-itemId",
+                "Enter item ID",
+                map -> true,
+                val -> {
+                    try {
+                        Integer.valueOf(val);
+                        return true;
+                    } catch (NumberFormatException e) {
+                        return false;
+                    }
+                },
+                "item ID must be a valid integer"
+            ),
+            new ParamSpec(
+                "-stageId",
+                "Enter shipment stage ID",
+                map -> true,
+                val -> {
+                    try {
+                        Integer.valueOf(val);
+                        return true;
+                    } catch (NumberFormatException e) {
+                        return false;
+                    }
+                },
+                "stageId must be a valid integer"
+            )
+        };
+
+        return new GenericAddCommand<>(
+            srv,
+            specs,
+            params -> {
+                return new CargoItemShipment(
+                    new CargoItem(Integer.parseInt(params.get("-itemId")), null, null, null, null, null, null, false),
+                    new ShipmentStage(Integer.parseInt(params.get("-stageId")), null, null, null)
+                );
+            },
+            created -> "Added: cargo item=" + created.cargoItem().id() + ", shipment stage=" + created.shipmentStage().id(),
+            "lnk-itm [-i] -itemId <id> -stageId <id>"
         );
     }
 

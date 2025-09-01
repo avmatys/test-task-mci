@@ -9,13 +9,13 @@ import com.task.mci.io.InputSource;
 import com.task.mci.io.OutputTarget;
 import com.task.mci.service.GenericService;
 
-public class GenericListCommand<T> implements Command {
+public class GenericListCommand<T, M> implements Command {
 
-    private final GenericService<T, Integer> service;
+    private final GenericService<T, M> service;
     private final Function<T, String> formatter;
     private final String description;
 
-    public GenericListCommand(GenericService<T, Integer> service,
+    public GenericListCommand(GenericService<T, M> service,
                               Function<T, String> formatter,
                               String description) {
         this.service = service;

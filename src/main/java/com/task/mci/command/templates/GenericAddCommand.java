@@ -13,15 +13,15 @@ import com.task.mci.io.OutputTarget;
 import com.task.mci.service.GenericService;
 import com.task.mci.service.validation.ValidationException;
 
-public class GenericAddCommand<T> implements Command {
+public class GenericAddCommand<T, M> implements Command {
 
-    private final GenericService<T, Integer> service;
+    private final GenericService<T, M> service;
     private final ParamSpec[] specs;
     private final Function<Map<String,String>, T> builder;
     private final Function<T,String> formatter;
     private final String description;
 
-    public GenericAddCommand(GenericService<T, Integer> service,
+    public GenericAddCommand(GenericService<T, M> service,
                              ParamSpec[] specs,
                              Function<Map<String,String>,T> builder,
                              Function<T,String> formatter,
