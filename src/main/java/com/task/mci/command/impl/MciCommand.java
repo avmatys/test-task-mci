@@ -3,12 +3,14 @@ package com.task.mci.command.impl;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.text.ParseException;
+import java.util.List;
 import java.util.Map;
 
 import com.task.mci.command.Command;
 import com.task.mci.command.util.CommandArgumentParser;
 import com.task.mci.io.InputSource;
 import com.task.mci.io.OutputTarget;    
+import com.task.mci.model.CargoItem;
 import com.task.mci.service.MciService;    
 
 public class MciCommand implements Command {
@@ -47,7 +49,10 @@ public class MciCommand implements Command {
         }
         try {
             int stageId = Integer.parseInt(params.get("-stageId"));
-            var items = service.findMci(stageId);
+            Long startTime = System.nanoTime();
+            List<CargoItem> items = service.findMci(stageId);
+            long endTime = System.nanoTime();
+            double durationInMillis = (endTime - startTime) / 1_000_000.0;
             if (items != null) {
                 for (var x : items) {
                     out.write(
@@ -60,7 +65,9 @@ public class MciCommand implements Command {
                         );
                 }
             }
-            out.write("\n");
+            out.write(String.format("Spent time: %.4f ms\n", durationInMillis));
+            out.write(String.format("Count: %d", items != null ? items.size() : 0));
+            out.write("\n\n");
             
         } catch (NumberFormatException e) {
             out.write("Invalid number format: " + e.getMessage() + "\n");

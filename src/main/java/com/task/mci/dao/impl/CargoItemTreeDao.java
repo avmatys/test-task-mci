@@ -20,7 +20,7 @@ public class CargoItemTreeDao implements MciDao {
             SELECT ci.id, ci.type, ci.parent_id, ci.from_id, ci.to_id
             FROM cargo_items ci
             JOIN cargo_item_shipments cis ON ci.id = cis.cargo_item_id
-            WHERE cis.shipment_stage_id = ?
+            WHERE cis.shipment_stage_id = ? AND ci.parent_id IS NULL
             UNION ALL
             SELECT child.id, child.type,child.parent_id, child.from_id, child.to_id
             FROM cargo_items child
