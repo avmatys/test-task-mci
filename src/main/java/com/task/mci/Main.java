@@ -99,7 +99,7 @@ public class Main {
             Pattern pattern = Pattern.compile("[^\\s\"']+|\"([^\"]*)\"|'([^']*)'");
             boolean running = true;
             while (running) {
-                out.write("\n> ");
+                out.write("> ");
                 String line = in.readLine();
                 if (line == null) break;
                 line = line.trim();

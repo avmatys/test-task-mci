@@ -66,7 +66,7 @@ public class GenericAddCommand<T, M> implements Command {
         try {
             T entity  = builder.apply(params);
             T created = service.create(entity);
-            out.write(formatter.apply(created) + "\n");
+            out.write(formatter.apply(created) + "\n\n");
         } catch (NumberFormatException e) {
             out.write("Invalid numeric value: " + e.getMessage() + "\n");
         } catch (ValidationException ve) {

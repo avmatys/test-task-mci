@@ -18,31 +18,68 @@ import com.task.mci.service.GenericService;
 public class CommandFactory { 
 
     public static Command listLocationCommand(GenericService<Location, Integer> service) {
-        return new GenericListCommand<>(service, x -> x.id() + "\t" + x.name(), "list all locations");
+        return new GenericListCommand<>(
+            service, 
+            x -> String.format("ID: %-7d Name: %-20s", x.id(), x.name()), 
+            "list all locations"
+        );
     }
 
     public static Command listTruckCommand(GenericService<Truck, Integer> service) {
-        return new GenericListCommand<>(service, x -> x.id() + "\t" + x.plate(), "list all trucks");
+        return new GenericListCommand<>(
+            service, 
+            x -> String.format("ID: %-7d Plate: %-20s", x.id(), x.plate()),
+            "list all trucks"
+        );
     }
 
     public static Command listProductCommand(GenericService<Product, Integer> service) {
-        return new GenericListCommand<>(service, x -> x.id() + "\t" + x.name(), "list all products");
+        return new GenericListCommand<>(
+            service,
+            x -> String.format("ID: %-7d Name: %-20s", x.id(), x.name()), 
+            "list all products"
+        );
     }
 
     public static Command listCapacityCommand(GenericService<Capacity, Integer> service) {
-        return new GenericListCommand<>(service, x -> x.id() + "\t" + x.name(), "list all capacity types");
+        return new GenericListCommand<>(
+            service,
+            x -> String.format("ID: %-7d Name: %-20s", x.id(), x.name()),
+            "list all capacity types"
+        );
     }
 
     public static Command listCargoItemCommand(GenericService<CargoItem, Integer> service) {
-        return new GenericListCommand<>(service, x -> x.id() + "\t" + x.type(), "list all cargo items");
+        return new GenericListCommand<>(
+            service,
+            x -> String.format("ID: %-7d Type: %-10s Capacity: %-7d Product: %-7d From: %-7d To: %-7d Parent: %-7d", 
+                                x.id(), 
+                                x.type().name(),
+                                x.capacity() != null ? x.capacity().id() : null,
+                                x.product() != null ? x.product().id() : null,
+                                x.from().id(), 
+                                x.to().id(), 
+                                x.parent() != null ? x.parent().id(): null),
+            "list all cargo items"
+        );
     }
 
     public static Command listShipmentStageCommand(GenericService<ShipmentStage, Integer> service) {
-        return new GenericListCommand<>(service, x -> x.id() + "\t" + x.truck(), "list all shipment stages");
+        return new GenericListCommand<>(
+            service,
+            x -> String.format("ID: %-7d Truck: %-7d From: %-7d To: %-7d", 
+                               x.id(), x.truck().id(), x.from().id(), x.to().id()),
+            "list all shipment stages"
+        );
     }
 
-    public static Command listCargoItemShipmentCommand(GenericService<CargoItemShipment, CargoItemShipmentKey> service) {
-        return new GenericListCommand<>(service, x -> x.cargoItem().id() + "\t" + x.shipmentStage().id(), "list all item shipments");
+    public static Command listCargoItemShipmentCommand(
+            GenericService<CargoItemShipment, CargoItemShipmentKey> service) {
+        return new GenericListCommand<>(
+            service,
+            x -> String.format("Item: %-7d Stage: %-7d", x.cargoItem().id(), x.shipmentStage().id()),
+            "list all item shipments"
+        );
     }
 
     public static Command helpCommand(CommandRegistry registry) {
@@ -70,7 +107,7 @@ public class CommandFactory {
             srv,
             specs,
             params -> new Location(0, params.get("-name")),
-            created -> "Location added: ID=" + created.id() + ", name=" + created.name(),
+            created -> String.format("Added: %s\t", created),
             "add a new location. Usage: add-location [-i] -name <name>"
         );
     }
@@ -83,7 +120,7 @@ public class CommandFactory {
             srv, 
             specs,
             params -> new Truck(0, params.get("-plate")),
-            created -> "Truck added: ID=" + created.id() + ", plate=" + created.plate(),
+            created -> String.format("Added: %s\t", created),
             "add a new truck. Usage: add-trk [-i] -plate <plate>"
         );
     }
@@ -96,7 +133,7 @@ public class CommandFactory {
             srv, 
             specs,
             params -> new Capacity(0, params.get("-name")),
-            created -> "Added: ID=" + created.id() + ", name=" + created.name(), 
+            created -> String.format("Added: %s\t", created),
             "add a new capacity type. Usage: add-cpt [-i] -name <name>"
         );
     }   
@@ -109,7 +146,7 @@ public class CommandFactory {
             srv, 
             specs,
             params -> new Product(0, params.get("-name")),
-            created -> "Added: ID=" + created.id() + ", name=" + created.name(),
+            created -> String.format("Added: %s\t", created),
             "add a new product. Usage: add-prd [-i] -name <name>"
         );
     }  
@@ -215,7 +252,7 @@ public class CommandFactory {
                     false
                 );
             },
-            created -> "Added: ID=" + created.id() + ", parent=" + (created.parent() != null ? created.parent().id() : "null"),
+            created -> String.format("Added: %s\t", created),
             "add a new cargo item. Usage: add-itm [-i] -type <CAPACITY|PRODUCT> [-capId <id>] [-prdId <id>] -fromId <id> -toId <id> [-parentId <id>]"
         );
     }
@@ -277,13 +314,7 @@ public class CommandFactory {
                     new Location(Integer.parseInt(params.get("-toId")),    "")
                 );
             },
-            created -> String.format(
-                "ShipmentStage added: ID=%d, truck=%d, from=%d, to=%d",
-                created.id(),
-                created.truck().id(),
-                created.from().id(),
-                created.to().id()
-            ),
+            created -> String.format("Added: %s\t", created),
             "add-shipment-stage [-i] -truckId <id> -fromId <id> -toId <id>"
         );
     }
@@ -329,7 +360,7 @@ public class CommandFactory {
                     new ShipmentStage(Integer.parseInt(params.get("-stageId")), null, null, null)
                 );
             },
-            created -> "Added: cargo item=" + created.cargoItem().id() + ", shipment stage=" + created.shipmentStage().id(),
+            created -> String.format("Added: %s\t", created),
             "lnk-itm [-i] -itemId <id> -stageId <id>"
         );
     }

@@ -20,14 +20,14 @@ public class CargoItemShipmentDao implements CrudDao<CargoItemShipment, CargoIte
         SELECT                    
           cis.cargo_item_id       AS ci_id,
           cis.shipment_stage_id   AS ss_id
-        FROM cargo_items_shipments cis
+        FROM cargo_item_shipments cis
         """;
 
     private static final String SELECT_BY_ID_SQL = SELECT_ALL_SQL
         + " WHERE cis.cargo_item_id = ? AND cis.shipment_stage_id = ?";
 
     private static final String INSERT_SQL = """
-        INSERT INTO cargo_items_shipments(cargo_item_id, shipment_stage_id)
+        INSERT INTO cargo_item_shipments(cargo_item_id, shipment_stage_id)
         VALUES (?, ?)
         """;
 
