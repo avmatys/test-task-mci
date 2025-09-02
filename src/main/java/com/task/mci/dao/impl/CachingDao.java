@@ -1,4 +1,4 @@
-package com.task.mci.dao;
+package com.task.mci.dao.impl;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+
+import com.task.mci.dao.CrudDao;
 
 public class CachingDao<T, ID> implements CrudDao<T, ID> {
 

@@ -1,4 +1,4 @@
-package com.task.mci.dao;
+package com.task.mci.dao.impl;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.task.mci.dao.MciDao;
 import com.task.mci.dao.util.DB;
 import com.task.mci.model.CargoItem;
 import com.task.mci.model.CargoType;

@@ -1,4 +1,4 @@
-package com.task.mci.dao;
+package com.task.mci.dao.impl;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -8,36 +8,39 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.task.mci.dao.CrudDao;
 import com.task.mci.dao.util.DB;
-import com.task.mci.model.Location;
+import com.task.mci.model.Capacity;
 
-public class LocationDao implements CrudDao<Location, Integer> {
+public class CapacityDao implements CrudDao<Capacity, Integer> {
 
-    private static final String SELECT_ALL_SQL = "SELECT id, name FROM locations";
-    private static final String SELECT_BY_ID_SQL = "SELECT id, name FROM locations WHERE id = ?";
-    private static final String INSERT_SQL ="INSERT INTO locations(name) VALUES(?)";
+    public CapacityDao() {}
+
+    private static final String SELECT_ALL_SQL = "SELECT id, name FROM capacities";
+    private static final String SELECT_BY_ID_SQL = "SELECT id, name FROM capacities WHERE id = ?";
+    private static final String INSERT_SQL = "INSERT INTO capacities(name) VALUES(?)";
 
     @Override
-    public List<Location> findAll() throws SQLException {
+    public List<Capacity> findAll() throws SQLException {
         try (Connection c = DB.getConnection();
              Statement st = c.createStatement();
              ResultSet rs = st.executeQuery(SELECT_ALL_SQL)) {
-            List<Location> list = new ArrayList<>();
+            List<Capacity> list = new ArrayList<>();
             while (rs.next()) {
-                list.add(new Location(rs.getInt("id"), rs.getString("name")));
+                list.add(new Capacity(rs.getInt("id"), rs.getString("name")));
             }
             return list;
         }
     }
 
     @Override
-    public Location findById(Integer id) throws SQLException {
+    public Capacity findById(Integer id) throws SQLException {
         try (Connection c = DB.getConnection();
              PreparedStatement ps = c.prepareStatement(SELECT_BY_ID_SQL)) {
             ps.setInt(1, id);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    return new Location(rs.getInt("id"), rs.getString("name"));
+                    return new Capacity(rs.getInt("id"), rs.getString("name"));
                 }
                 return null;
             }
@@ -45,16 +48,16 @@ public class LocationDao implements CrudDao<Location, Integer> {
     }
 
     @Override
-    public Location insert(Location entity) throws SQLException {
+    public Capacity insert(Capacity entity) throws SQLException {
         try (Connection c = DB.getConnection();
              PreparedStatement ps = c.prepareStatement(INSERT_SQL, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, entity.name());
             ps.executeUpdate();
             try (ResultSet rs = ps.getGeneratedKeys()) {
                 if (rs.next()) {
-                    return new Location(rs.getInt(1), entity.name());
+                    return new Capacity(rs.getInt(1), entity.name());
                 }
-                throw new SQLException("Can't get generated key for Location");
+                throw new SQLException("Can't get generated key for Package");
             }
         }
     }
