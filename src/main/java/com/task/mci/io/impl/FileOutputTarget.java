@@ -1,8 +1,10 @@
-package com.task.mci.io;
+package com.task.mci.io.impl;
 
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+
+import com.task.mci.io.OutputTarget;
 
 public class FileOutputTarget implements OutputTarget {
 

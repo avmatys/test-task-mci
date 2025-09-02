@@ -5,12 +5,12 @@ import java.io.IOException;
 import com.task.mci.command.CommandInitializer;
 import com.task.mci.command.CommandRegistry;
 import com.task.mci.dao.util.DB;
-import com.task.mci.io.ConsoleInputSource;
-import com.task.mci.io.ConsoleOutputTarget;
-import com.task.mci.io.FileInputSource;
-import com.task.mci.io.FileOutputTarget;
 import com.task.mci.io.InputSource;
 import com.task.mci.io.OutputTarget;
+import com.task.mci.io.impl.ConsoleInputSource;
+import com.task.mci.io.impl.ConsoleOutputTarget;
+import com.task.mci.io.impl.FileInputSource;
+import com.task.mci.io.impl.FileOutputTarget;
 
 public class Main {
     public static void main(String[] args) {

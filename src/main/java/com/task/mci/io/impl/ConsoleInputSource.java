@@ -1,8 +1,10 @@
-package com.task.mci.io;
+package com.task.mci.io.impl;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+
+import com.task.mci.io.InputSource;
 
 public class ConsoleInputSource implements InputSource {
 

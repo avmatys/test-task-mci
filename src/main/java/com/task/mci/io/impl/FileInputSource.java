@@ -1,8 +1,10 @@
-package com.task.mci.io;
+package com.task.mci.io.impl;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+
+import com.task.mci.io.InputSource;
 
 public class FileInputSource implements InputSource {
     
