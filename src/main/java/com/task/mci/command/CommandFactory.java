@@ -1,9 +1,10 @@
 package com.task.mci.command;
 
-import com.task.mci.command.templates.GenericAddCommand;
-import com.task.mci.command.templates.GenericCommand;
-import com.task.mci.command.templates.GenericListCommand;
-import com.task.mci.command.templates.ParamSpec;
+import com.task.mci.command.impl.GenericAddCommand;
+import com.task.mci.command.impl.GenericCommand;
+import com.task.mci.command.impl.GenericListCommand;
+import com.task.mci.command.impl.MciCommand;
+import com.task.mci.command.impl.ParamSpec;
 import com.task.mci.model.Capacity;
 import com.task.mci.model.CargoItem;
 import com.task.mci.model.CargoItemShipment;
@@ -14,6 +15,7 @@ import com.task.mci.model.Product;
 import com.task.mci.model.ShipmentStage;
 import com.task.mci.model.Truck;
 import com.task.mci.service.GenericService;
+import com.task.mci.service.MciService;
 
 public class CommandFactory { 
 
@@ -239,15 +241,15 @@ public class CommandFactory {
                 CargoType type = CargoType.valueOf(params.get("-type"));
                 CargoItem parent = null;
                 if (params.containsKey("-parentId") && !params.get("-parentId").isBlank()) {
-                    parent = new CargoItem(Integer.parseInt(params.get("-parentId")), null, null, null, null, null, null, false);
+                    parent = new CargoItem(Integer.parseInt(params.get("-parentId")));
                 }
                 return new CargoItem(
                     0,
                     type,
-                    type == CargoType.CAPACITY ? new Capacity(Integer.parseInt(params.get("-capId")), "") : null,
-                    type == CargoType.PRODUCT ? new Product(Integer.parseInt(params.get("-prdId")), "") : null,
-                    new Location(Integer.parseInt(params.get("-fromId")), ""),
-                    new Location(Integer.parseInt(params.get("-toId")), ""),
+                    type == CargoType.CAPACITY ? new Capacity(Integer.parseInt(params.get("-capId"))) : null,
+                    type == CargoType.PRODUCT ? new Product(Integer.parseInt(params.get("-prdId"))) : null,
+                    new Location(Integer.parseInt(params.get("-fromId"))),
+                    new Location(Integer.parseInt(params.get("-toId"))),
                     parent, 
                     false
                 );
@@ -309,13 +311,13 @@ public class CommandFactory {
             params -> {
                 return new ShipmentStage(
                     0,
-                    new Truck(Integer.parseInt(params.get("-truckId")), ""),
-                    new Location(Integer.parseInt(params.get("-fromId")),  ""),
-                    new Location(Integer.parseInt(params.get("-toId")),    "")
+                    new Truck(Integer.parseInt(params.get("-truckId"))),
+                    new Location(Integer.parseInt(params.get("-fromId"))),
+                    new Location(Integer.parseInt(params.get("-toId")))
                 );
             },
             created -> String.format("Added: %s\t", created),
-            "add-shipment-stage [-i] -truckId <id> -fromId <id> -toId <id>"
+            "add-stg [-i] -truckId <id> -fromId <id> -toId <id>"
         );
     }
 
@@ -356,13 +358,17 @@ public class CommandFactory {
             specs,
             params -> {
                 return new CargoItemShipment(
-                    new CargoItem(Integer.parseInt(params.get("-itemId")), null, null, null, null, null, null, false),
-                    new ShipmentStage(Integer.parseInt(params.get("-stageId")), null, null, null)
+                    new CargoItem(Integer.parseInt(params.get("-itemId"))),
+                    new ShipmentStage(Integer.parseInt(params.get("-stageId")))
                 );
             },
             created -> String.format("Added: %s\t", created),
             "lnk-itm [-i] -itemId <id> -stageId <id>"
         );
+    }
+
+    public static Command mciCommand(MciService service) {
+        return new MciCommand(service, "lst-mci [-i] -stageId <id>");
     }
 
 }

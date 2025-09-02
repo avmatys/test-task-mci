@@ -1,7 +1,7 @@
 package com.task.mci.model;
 
 public record CargoItem(
-    int id,
+    int id, 
     CargoType type,
     Capacity capacity,
     Product product,
@@ -9,4 +9,8 @@ public record CargoItem(
     Location to,
     CargoItem parent,
     boolean main
-) {}
+) {
+    public CargoItem(int id) {
+        this(id, null, null, null, null, null, null, false);
+    }
+}

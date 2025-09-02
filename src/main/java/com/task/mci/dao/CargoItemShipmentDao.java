@@ -68,8 +68,8 @@ public class CargoItemShipmentDao implements CrudDao<CargoItemShipment, CargoIte
     }
 
     private CargoItemShipment mapRow(ResultSet rs) throws SQLException {
-        CargoItem item = new CargoItem(rs.getInt("ci_id"), null, null, null, null, null, null, false);
-        ShipmentStage stage = new ShipmentStage(rs.getInt("ss_id"), null, null, null);
+        CargoItem item = new CargoItem(rs.getInt("ci_id"));
+        ShipmentStage stage = new ShipmentStage(rs.getInt("ss_id"));
         return new CargoItemShipment(item, stage);
     }
 }

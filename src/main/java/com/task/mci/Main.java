@@ -13,8 +13,10 @@ import com.task.mci.dao.CachingDao;
 import com.task.mci.dao.CapacityDao;
 import com.task.mci.dao.CargoItemDao;
 import com.task.mci.dao.CargoItemShipmentDao;
+import com.task.mci.dao.CargoItemTreeDao;
 import com.task.mci.dao.CrudDao;
 import com.task.mci.dao.LocationDao;
+import com.task.mci.dao.MciDao;
 import com.task.mci.dao.ProductDao;
 import com.task.mci.dao.ShipmentStageDao;
 import com.task.mci.dao.TruckDao;
@@ -34,9 +36,11 @@ import com.task.mci.model.Product;
 import com.task.mci.model.ShipmentStage;
 import com.task.mci.model.Truck;
 import com.task.mci.service.GenericService;
+import com.task.mci.service.MciService;
 import com.task.mci.service.impl.CargoItemService;
 import com.task.mci.service.impl.CargoItemShipmentService;
 import com.task.mci.service.impl.GenericServiceImpl;
+import com.task.mci.service.impl.JavaMciService;
 import com.task.mci.service.impl.ShipmentStageService;
 
 public class Main {
@@ -61,6 +65,7 @@ public class Main {
             CrudDao<CargoItem, Integer> cargoItemDao = new CargoItemDao();
             CrudDao<ShipmentStage, Integer> shipmentStageDao = new ShipmentStageDao();
             CrudDao<CargoItemShipment, CargoItemShipmentKey> cargoItemShipmentDao = new CargoItemShipmentDao();
+            MciDao mciDao = new CargoItemTreeDao();
             
             // Initialize Services
             GenericService<Location, Integer> locationService = new GenericServiceImpl<>(locationDao);
@@ -73,6 +78,7 @@ public class Main {
                 new ShipmentStageService(shipmentStageDao, truckService, locationService);
             GenericService<CargoItemShipment, CargoItemShipmentKey> cargoItemShipmentService = 
                 new CargoItemShipmentService(cargoItemShipmentDao, cargoItemService, shipmentStageService);
+            MciService mciService = new JavaMciService(mciDao);
             
             // Register commands
             CommandRegistry registry = new CommandRegistry();
@@ -94,6 +100,8 @@ public class Main {
             registry.register("add-itm", CommandFactory.addCargoItemCommand(cargoItemService));
             registry.register("add-stg", CommandFactory.addShipmentStageCommand(shipmentStageService));
             registry.register("add-map", CommandFactory.addCargoItemShipmentCommand(cargoItemShipmentService));
+
+            registry.register("lst-mci", CommandFactory.mciCommand(mciService));
 
             // Command loop
             Pattern pattern = Pattern.compile("[^\\s\"']+|\"([^\"]*)\"|'([^']*)'");

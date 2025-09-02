@@ -25,10 +25,7 @@ public class TruckDao implements CrudDao<Truck, Integer> {
              ResultSet rs = st.executeQuery(SELECT_ALL_SQL)) {
             List<Truck> list = new ArrayList<>();
             while (rs.next()) {
-                list.add(new Truck(
-                    rs.getInt("id"),
-                    rs.getString("plate")
-                ));
+                list.add(new Truck(rs.getInt("id"),rs.getString("plate")));
             }
             return list;
         }
@@ -41,10 +38,7 @@ public class TruckDao implements CrudDao<Truck, Integer> {
             ps.setInt(1, id);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    return new Truck(
-                        rs.getInt("id"),
-                        rs.getString("plate")
-                    );
+                    return new Truck(rs.getInt("id"), rs.getString("plate"));
                 }
                 return null;
             }
@@ -59,10 +53,7 @@ public class TruckDao implements CrudDao<Truck, Integer> {
             ps.executeUpdate();
             try (ResultSet rs = ps.getGeneratedKeys()) {
                 if (rs.next()) {
-                    return new Truck(
-                        rs.getInt(1),
-                        entity.plate()
-                    );
+                    return new Truck(rs.getInt(1), entity.plate());
                 }
                 throw new SQLException("Can't get generated key for Truck");
             }

@@ -26,10 +26,7 @@ public class CapacityDao implements CrudDao<Capacity, Integer> {
              ResultSet rs = st.executeQuery(SELECT_ALL_SQL)) {
             List<Capacity> list = new ArrayList<>();
             while (rs.next()) {
-                list.add(new Capacity(
-                        rs.getInt("id"),
-                        rs.getString("name")
-                ));
+                list.add(new Capacity(rs.getInt("id"), rs.getString("name")));
             }
             return list;
         }
@@ -42,10 +39,7 @@ public class CapacityDao implements CrudDao<Capacity, Integer> {
             ps.setInt(1, id);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    return new Capacity(
-                        rs.getInt("id"),
-                        rs.getString("name")
-                    );
+                    return new Capacity(rs.getInt("id"), rs.getString("name"));
                 }
                 return null;
             }
@@ -60,10 +54,7 @@ public class CapacityDao implements CrudDao<Capacity, Integer> {
             ps.executeUpdate();
             try (ResultSet rs = ps.getGeneratedKeys()) {
                 if (rs.next()) {
-                    return new Capacity(
-                        rs.getInt(1),
-                        entity.name()
-                    );
+                    return new Capacity(rs.getInt(1), entity.name());
                 }
                 throw new SQLException("Can't get generated key for Package");
             }

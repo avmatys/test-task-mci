@@ -1,9 +1,8 @@
-package com.task.mci.command.templates;
+package com.task.mci.command.impl;
 
 import java.io.IOException;
 
 import com.task.mci.command.Command;
-import com.task.mci.command.CommandHandler;
 import com.task.mci.io.InputSource;
 import com.task.mci.io.OutputTarget;
 
@@ -25,6 +24,11 @@ public class GenericCommand implements Command {
     @Override
     public String description() {
         return description;
+    }
+
+    @FunctionalInterface
+    public interface CommandHandler {
+        boolean handle(String[] args, InputSource in, OutputTarget out) throws IOException;
     }
 
 }

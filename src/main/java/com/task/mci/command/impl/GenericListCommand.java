@@ -1,4 +1,4 @@
-package com.task.mci.command.templates;
+package com.task.mci.command.impl;
 
 import java.io.IOException;
 import java.sql.SQLException;

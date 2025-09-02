@@ -154,7 +154,7 @@ public class CargoItemDao implements CrudDao<CargoItem, Integer> {
         CargoItem parent = null;
         int parentId = rs.getInt("parent_id");
         if (!rs.wasNull()) {
-            parent = new CargoItem(parentId, null, null, null, null, null, null, false);
+            parent = new CargoItem(parentId);
         }
         return new CargoItem(id, type, pkg, prod, from, to, parent, main);
     }

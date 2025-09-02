@@ -24,10 +24,7 @@ public class LocationDao implements CrudDao<Location, Integer> {
              ResultSet rs = st.executeQuery(SELECT_ALL_SQL)) {
             List<Location> list = new ArrayList<>();
             while (rs.next()) {
-                list.add(new Location(
-                    rs.getInt("id"),
-                    rs.getString("name")
-                ));
+                list.add(new Location(rs.getInt("id"), rs.getString("name")));
             }
             return list;
         }
@@ -40,10 +37,7 @@ public class LocationDao implements CrudDao<Location, Integer> {
             ps.setInt(1, id);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    return new Location(
-                        rs.getInt("id"),
-                        rs.getString("name")
-                    );
+                    return new Location(rs.getInt("id"), rs.getString("name"));
                 }
                 return null;
             }
@@ -58,10 +52,7 @@ public class LocationDao implements CrudDao<Location, Integer> {
             ps.executeUpdate();
             try (ResultSet rs = ps.getGeneratedKeys()) {
                 if (rs.next()) {
-                    return new Location(
-                        rs.getInt(1),
-                        entity.name()
-                    );
+                    return new Location(rs.getInt(1), entity.name());
                 }
                 throw new SQLException("Can't get generated key for Location");
             }

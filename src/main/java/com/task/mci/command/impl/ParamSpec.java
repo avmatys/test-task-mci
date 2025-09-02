@@ -1,4 +1,4 @@
-package com.task.mci.command.templates;
+package com.task.mci.command.impl;
 
 import java.util.Map;
 import java.util.function.Predicate;
