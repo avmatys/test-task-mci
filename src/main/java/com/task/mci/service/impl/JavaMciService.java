@@ -39,7 +39,7 @@ public class JavaMciService implements MciService {
         }
         List<CargoItem> result = new ArrayList<>();
         Deque<CargoItem> queue = new ArrayDeque<>();
-        queue.addAll(tree.get(null));
+        queue.addAll(tree.getOrDefault(null, Collections.emptyList()));
         while (!queue.isEmpty()) {
             CargoItem curr = queue.poll();
             NodeInfo currInfo = stats.get(curr.id());
