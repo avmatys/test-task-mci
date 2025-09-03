@@ -76,11 +76,6 @@ public class GenericAddCommand<T, M> implements Command {
         } catch (SQLException e) {
             out.write("Database error: " + e.getMessage() + "\n");
         }
-        catch (IOException e) {
-            out.write("I/O error: " + e.getMessage() + "\n");
-        } catch (Exception ex) {
-            out.write("Unexpected error: " + ex.getClass().getSimpleName()+ " – " + ex.getMessage() + "\n");
-        }
         return true;
     }
 
