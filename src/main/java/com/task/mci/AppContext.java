@@ -4,12 +4,12 @@ import com.task.mci.dao.CrudDao;
 import com.task.mci.dao.MciDao;
 import com.task.mci.dao.impl.CachingDao;
 import com.task.mci.dao.impl.CapacityDao;
-import com.task.mci.dao.impl.CargoItemDao;
+import com.task.mci.dao.impl.CargoItemJoinedDao;
 import com.task.mci.dao.impl.CargoItemShipmentDao;
 import com.task.mci.dao.impl.CargoItemTreeDao;
 import com.task.mci.dao.impl.LocationDao;
 import com.task.mci.dao.impl.ProductDao;
-import com.task.mci.dao.impl.ShipmentStageDao;
+import com.task.mci.dao.impl.ShipmentStageJoinedDao;
 import com.task.mci.dao.impl.TruckDao;
 import com.task.mci.model.Capacity;
 import com.task.mci.model.CargoItem;
@@ -32,8 +32,8 @@ public class AppContext {
     public final CrudDao<Truck, Integer> truckDao = new TruckDao();
     public final CrudDao<Product, Integer> productDao = new ProductDao();
     public final CrudDao<Capacity, Integer> capacityDao = new CachingDao<>(new CapacityDao(), Capacity::id);
-    public final CrudDao<CargoItem, Integer> cargoItemDao = new CargoItemDao();
-    public final CrudDao<ShipmentStage, Integer> shipmentStageDao = new ShipmentStageDao();
+    public final CrudDao<CargoItem, Integer> cargoItemDao = new CargoItemJoinedDao();
+    public final CrudDao<ShipmentStage, Integer> shipmentStageDao = new ShipmentStageJoinedDao();
     public final CrudDao<CargoItemShipment, CargoItemShipmentKey> cargoItemShipmentDao = new CargoItemShipmentDao();
     public final MciDao mciDao = new CargoItemTreeDao();
 

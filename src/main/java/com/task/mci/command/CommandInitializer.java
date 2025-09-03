@@ -3,6 +3,7 @@ package com.task.mci.command;
 import com.task.mci.AppContext;
 
 public class CommandInitializer {
+
     public static CommandRegistry initialize(AppContext ctx) {
         CommandRegistry registry = new CommandRegistry();
 
@@ -29,4 +30,5 @@ public class CommandInitializer {
 
         return registry;
     }
+
 }

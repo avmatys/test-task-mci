@@ -50,7 +50,9 @@ public class CachingDao<T, ID> implements CrudDao<T, ID> {
 
     @Override
     public T findById(ID id) throws SQLException {
-        findAll();
+        if (cache == null) {
+            return delegate.findById(id);
+        }
         return cache.get(id);
     }
 

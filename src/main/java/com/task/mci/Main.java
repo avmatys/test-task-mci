@@ -1,6 +1,8 @@
 package com.task.mci;
 
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.task.mci.command.CommandInitializer;
 import com.task.mci.command.CommandRegistry;
@@ -13,6 +15,9 @@ import com.task.mci.io.impl.FileInputSource;
 import com.task.mci.io.impl.FileOutputTarget;
 
 public class Main {
+
+    private static final Logger logger = Logger.getLogger(Main.class.getName());
+
     public static void main(String[] args) {
         DB.init();
         InputSource in = null;
@@ -30,13 +35,13 @@ public class Main {
             ReplEngine repl = new ReplEngine(in, out, registry);
             repl.run();
         } catch (IOException e) {
-            System.err.println("I/O error: " + e.getMessage());
+            logger.log(Level.SEVERE, "Main I/O error: {0}", e.getMessage());
         } finally {
             try {
                 if (in != null) in.close();
                 if (out != null) out.close();
             } catch (IOException e) {
-                System.err.println("Failed to close resources: " + e.getMessage());
+                logger.log(Level.SEVERE, "Failed to close resources: {0}", e.getMessage());
             }
             DB.shutdown();
         }

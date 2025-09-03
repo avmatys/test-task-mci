@@ -17,7 +17,7 @@ import com.task.mci.model.CargoType;
 import com.task.mci.model.Location;
 import com.task.mci.model.Product;
 
-public class CargoItemDao implements CrudDao<CargoItem, Integer> {
+public class CargoItemJoinedDao implements CrudDao<CargoItem, Integer> {
 
     private static final String SELECT_ALL_SQL = "SELECT "
             + " ci.id                 AS ci_id,"

@@ -1,5 +1,9 @@
 package com.task.mci.command;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 import com.task.mci.command.impl.GenericAddCommand;
 import com.task.mci.command.impl.GenericCommand;
 import com.task.mci.command.impl.GenericListCommand;
@@ -89,8 +93,11 @@ public class CommandFactory {
             "list all commands",
             (args, in, out) -> {
                 out.write("Available commands:\n");
-                for (var e : registry.all().entrySet()) {
-                    out.write("  " + e.getKey() + " – " + e.getValue().description() + "\n");
+                List<String> keys = new ArrayList<>(registry.all().keySet());
+                Collections.sort(keys);
+                for (String key : keys) {
+                    var value = registry.all().get(key);
+                    out.write("  " + key + " – " + value.description() + "\n");
                 }
                 return true; 
             }
@@ -110,7 +117,7 @@ public class CommandFactory {
             specs,
             params -> new Location(0, params.get("-name")),
             created -> String.format("Added: %s\t", created),
-            "add a new location. Usage: add-location [-i] -name <name>"
+            "add a new location. Flags: [-i] -name <name>"
         );
     }
 
@@ -123,7 +130,7 @@ public class CommandFactory {
             specs,
             params -> new Truck(0, params.get("-plate")),
             created -> String.format("Added: %s\t", created),
-            "add a new truck. Usage: add-trk [-i] -plate <plate>"
+            "add a new truck. Flags: [-i] -plate <plate>"
         );
     }
 
@@ -136,7 +143,7 @@ public class CommandFactory {
             specs,
             params -> new Capacity(0, params.get("-name")),
             created -> String.format("Added: %s\t", created),
-            "add a new capacity type. Usage: add-cpt [-i] -name <name>"
+            "add a new capacity type. Flags: [-i] -name <name>"
         );
     }   
 
@@ -149,7 +156,7 @@ public class CommandFactory {
             specs,
             params -> new Product(0, params.get("-name")),
             created -> String.format("Added: %s\t", created),
-            "add a new product. Usage: add-prd [-i] -name <name>"
+            "add a new product. Flags: [-i] -name <name>"
         );
     }  
 
@@ -157,15 +164,15 @@ public class CommandFactory {
         ParamSpec[] specs = new ParamSpec[] {
             new ParamSpec(
                 "-type", 
-                "Enter cargo type (PRODUCT, CAPACITY)", 
+                "Enter type P | C", 
                 map -> true,
-                val -> val.equals("PRODUCT") || val.equals("CAPACITY"),
-                "type must be PRODUCT or CAPACITY"
+                val -> val.equals("P") || val.equals("C"),
+                "type must be P or C"
             ),
             new ParamSpec(
                 "-capId", 
                 "Enter capacity ID for type CAPACITY", 
-                map -> "CAPACITY".equalsIgnoreCase(map.get("-type")),
+                map -> "C".equalsIgnoreCase(map.get("-type")),
                 val -> {
                     try {
                         Integer.valueOf(val);
@@ -179,7 +186,7 @@ public class CommandFactory {
             new ParamSpec(
                 "-prdId",
                 "Enter product ID for type PRODUCT", 
-                map -> "PRODUCT".equalsIgnoreCase(map.get("-type")),
+                map -> "P".equalsIgnoreCase(map.get("-type")),
                 val -> {
                     try {
                         Integer.valueOf(val);
@@ -238,7 +245,7 @@ public class CommandFactory {
             srv, 
             specs,
             params -> {
-                CargoType type = CargoType.valueOf(params.get("-type"));
+                CargoType type = params.get("-type").equalsIgnoreCase("P") ? CargoType.PRODUCT : CargoType.CAPACITY;
                 CargoItem parent = null;
                 if (params.containsKey("-parentId") && !params.get("-parentId").isBlank()) {
                     parent = new CargoItem(Integer.parseInt(params.get("-parentId")));
@@ -255,7 +262,7 @@ public class CommandFactory {
                 );
             },
             created -> String.format("Added: %s\t", created),
-            "add a new cargo item. Usage: add-itm [-i] -type <CAPACITY|PRODUCT> [-capId <id>] [-prdId <id>] -fromId <id> -toId <id> [-parentId <id>]"
+            "add a new cargo item. Flags: [-i] -type <C|P> [-capId <id>] [-prdId <id>] -fromId <id> -toId <id> [-parentId <id>]"
         );
     }
 
@@ -317,7 +324,7 @@ public class CommandFactory {
                 );
             },
             created -> String.format("Added: %s\t", created),
-            "add-stg [-i] -truckId <id> -fromId <id> -toId <id>"
+            "add shipment stage. Flags: [-i] -truckId <id> -fromId <id> -toId <id>"
         );
     }
 
@@ -363,12 +370,12 @@ public class CommandFactory {
                 );
             },
             created -> String.format("Added: %s\t", created),
-            "lnk-itm [-i] -itemId <id> -stageId <id>"
+            "add item to shipment stage. Flags: [-i] -itemId <id> -stageId <id>"
         );
     }
 
     public static Command mciCommand(MciService service) {
-        return new MciCommand(service, "lst-mci [-i] -stageId <id>");
+        return new MciCommand(service, "find MCI for a stage. Flags: [-i] -stageId <id>");
     }
 
 }

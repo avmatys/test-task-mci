@@ -14,7 +14,7 @@ import com.task.mci.model.Location;
 import com.task.mci.model.ShipmentStage;
 import com.task.mci.model.Truck;
 
-public class ShipmentStageDao implements CrudDao<ShipmentStage, Integer> {
+public class ShipmentStageJoinedDao implements CrudDao<ShipmentStage, Integer> {
 
     private static final String SELECT_ALL_SQL = """
         SELECT ss.id         AS ss_id,

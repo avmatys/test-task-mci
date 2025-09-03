@@ -5,6 +5,8 @@ import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
@@ -12,15 +14,14 @@ import com.zaxxer.hikari.HikariDataSource;
 public class DB {
 
     private static HikariDataSource dataSource;
+    private static final Logger logger = Logger.getLogger(DB.class.getName());
 
     public static void init() {
-        if (dataSource != null) {
-            return; 
-        }
+        if (dataSource != null) return; 
         Properties properties = new Properties();
         try (InputStream input = DB.class.getClassLoader().getResourceAsStream("db.properties")) {
             if (input == null) {
-                System.err.println("Sorry, unable to find db.properties. Please make sure it's in your classpath.");
+                logger.log(Level.SEVERE, "Sorry, unable to find db.properties. Please make sure it's in your classpath.");
                 throw new RuntimeException("Can't find db.properties file.");
             }
             properties.load(input);
@@ -36,10 +37,10 @@ public class DB {
             config.setMaxLifetime(Long.parseLong(properties.getProperty("pool.maxLifetime", "1800000")));
             dataSource = new HikariDataSource(config);
         } catch (IOException e) {
-            System.err.println("Error loading db.properties file: " + e.getMessage());
+            logger.log(Level.SEVERE, "Error loading db.properties file {0}", e.getMessage());
             throw new RuntimeException(e);
         } catch (NumberFormatException e) {
-            System.err.println("Error parsing numeric pool properties: " + e.getMessage());
+            logger.log(Level.SEVERE, "Error parsing numeric pool properties {0}", e.getMessage());                
             throw new RuntimeException(e);
         }
     }
